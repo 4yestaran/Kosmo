@@ -11,6 +11,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.facebook.stetho.okhttp.StethoInterceptor;
@@ -44,11 +46,12 @@ public class MainActivity extends AppCompatActivity implements Callback<List<Pro
 
         SharedPreferences settings = getPreferences(MODE_PRIVATE);
         String token = settings.getString("token", null);
-
+/*
         if(token == null) {
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
         }
+        */
     }
 
     @Override
@@ -102,8 +105,12 @@ public class MainActivity extends AppCompatActivity implements Callback<List<Pro
     @Override
     public void onResponse(Response<List<Project>> response, Retrofit retrofit) {
         setProgressBarIndeterminateVisibility(false);
-        Log.i("Cosmo", response.body().get(0).toString());
-
+        for(Project project : response.body()) {
+            Log.i("Cosmo", project.toString());
+        }
+        ArrayAdapter mProjecsAdapter= new ArrayAdapter<Project>(this, R.layout.project_list_item, R.id.project_list_item_text, response.body());
+        ListView listView = (ListView) findViewById(R.id.listview_projects);
+        listView.setAdapter(mProjecsAdapter);
     }
 
     @Override

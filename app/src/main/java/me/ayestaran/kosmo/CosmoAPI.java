@@ -12,7 +12,7 @@ public interface CosmoAPI {
     @POST("/api/v1/login")
     Call<User> login(@Body Credentials credentials);
 
-    @Headers({"X-AUTH-TOKEN: kC0sNEYicPx+T479UVZqKFNZVxUYkiuzB24fzQK75TI=", "User-Agent: vince"})
+    @Headers({"X-AUTH-TOKEN:2yT7QFF+ZYRcRrMzlI8Mrewy0M+IZGQ7UUpwD2ETvUI=", "User-Agent: vince"})
     @GET("/api/v1/projects")
     Call<List<Project>> getProjects();
 }
