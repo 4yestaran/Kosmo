@@ -2,6 +2,7 @@ package me.ayestaran.kosmo;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -129,6 +130,11 @@ public class LoginActivity extends AppCompatActivity implements Callback<User> {
 
     public void onLoginSuccess(User user) {
         Toast.makeText(getBaseContext(), user.fullName, Toast.LENGTH_LONG).show();
+
+        SharedPreferences settings = getSharedPreferences("Kosmo", MODE_PRIVATE);
+        String token = settings.getString("token", null);
+        Log.i("Login", "Token: " + token);
+
         _loginButton.setEnabled(true);
         finish();
     }
@@ -164,9 +170,17 @@ public class LoginActivity extends AppCompatActivity implements Callback<User> {
 
     @Override
     public void onResponse(Response<User> response, Retrofit retrofit) {
-        Log.i("Cosmo",response.message());
-        Log.i("Cosmo", response.headers().get("X-AUTH-TOKEN"));
-        onLoginSuccess(response.body());
+        Log.i("Cosmo","Code: " + response.code());
+        if(response.code() == 200) {
+            Log.i("Cosmo", response.headers().get("X-AUTH-TOKEN"));
+            SharedPreferences settings = getSharedPreferences("Kosmo",MODE_PRIVATE);
+            SharedPreferences.Editor settingsEditor = settings.edit();
+            settingsEditor.putString("token", response.headers().get("X-AUTH-TOKEN"));
+            settingsEditor.commit();
+            onLoginSuccess(response.body());
+        } else {
+            onLoginFailed();
+        }
         /*
         setProgressBarIndeterminateVisibility(false);
         ArrayAdapter<Question> adapter = (ArrayAdapter<Question>) getListAdapter();

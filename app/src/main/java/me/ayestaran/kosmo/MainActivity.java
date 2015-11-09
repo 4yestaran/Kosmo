@@ -16,8 +16,11 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.facebook.stetho.okhttp.StethoInterceptor;
+import com.squareup.okhttp.Interceptor;
 import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
 
+import java.io.IOException;
 import java.util.List;
 
 import retrofit.Call;
@@ -44,14 +47,25 @@ public class MainActivity extends AppCompatActivity implements Callback<List<Pro
             }
         });
 
-        SharedPreferences settings = getPreferences(MODE_PRIVATE);
+        SharedPreferences settings = getSharedPreferences("Kosmo", MODE_PRIVATE);
         String token = settings.getString("token", null);
-/*
+
+        Log.i("Kosmo", "Token: " + token);
+
         if(token == null) {
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
         }
-        */
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences settings = getSharedPreferences("Kosmo", MODE_PRIVATE);
+        String token = settings.getString("token", null);
+
+        Log.i("Kosmo", "Token: " + token);
     }
 
     @Override
@@ -72,6 +86,20 @@ public class MainActivity extends AppCompatActivity implements Callback<List<Pro
         if (id == R.id.action_settings) {
             OkHttpClient client = new OkHttpClient();
             client.networkInterceptors().add(new StethoInterceptor());
+            /*client.networkInterceptors().add(new Interceptor() {
+                                              @Override
+                                              public Response intercept(Interceptor.Chain chain) throws IOException {
+                                                  Request original = chain.request();
+
+                                                  Request request = original.newBuilder()
+                                                          .header("User-Agent", "Your-App-Name")
+                                                          .header("Accept", "application/vnd.yourapi.v1.full+json")
+                                                          .method(original.method(), original.body())
+                                                          .build();
+
+                                                  return chain.proceed(request);
+                                              }
+                                          }*/
 
             Retrofit retrofit = new Retrofit.Builder()
                     .baseUrl("http://api.cosmo.paradigmate.com/api/v1/")
@@ -82,7 +110,12 @@ public class MainActivity extends AppCompatActivity implements Callback<List<Pro
             // prepare call in Retrofit 2.0
             CosmoAPI cosmoAPI = retrofit.create(CosmoAPI.class);
 
-            Call<List<Project>> call = cosmoAPI.getProjects();
+            SharedPreferences settings = getSharedPreferences("Kosmo", MODE_PRIVATE);
+            String token = settings.getString("token", null);
+
+            Log.i("Kosmo", "Token: " + token);
+
+            Call<List<Project>> call = cosmoAPI.getProjects(token);
             //asynchronous call
             call.enqueue(this);
 
